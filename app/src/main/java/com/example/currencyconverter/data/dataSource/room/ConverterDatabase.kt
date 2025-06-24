@@ -14,4 +14,8 @@ import com.example.currencyconverter.data.dataSource.room.transaction.dbo.Transa
 abstract class ConverterDatabase: RoomDatabase() {
     abstract fun accountDao(): AccountDao
     abstract fun transactionDao(): TransactionDao
+
+    companion object {
+        const val DATABASE_NAME = "converter_db"
+    }
 }

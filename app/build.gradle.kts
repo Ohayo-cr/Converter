@@ -93,6 +93,7 @@ dependencies {
     // hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+    implementation ("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // navigation
     implementation(libs.androidx.navigation.fragment.ktx)

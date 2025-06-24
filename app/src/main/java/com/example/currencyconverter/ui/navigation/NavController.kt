@@ -9,20 +9,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 
 
-import com.example.currencyconverter.ui.screen.CurrenciesScreen
+import com.example.currencyconverter.ui.screen.currency.CurrencyScreen
 
 @Composable
 fun NavHostScreen(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Currencies.route,
+        startDestination = Screen.Currency.route,
         enterTransition = { fadeIn(animationSpec = tween(0)) },
         exitTransition = { fadeOut(animationSpec = tween(0)) },
         popEnterTransition = { fadeIn(animationSpec = tween(0)) },
         popExitTransition = { fadeOut(animationSpec = tween(0)) }
     ) {
-        composable(Screen.Currencies.route) {
-            CurrenciesScreen()
+        composable(Screen.Currency.route) {
+            CurrencyScreen()
         }
 
     }

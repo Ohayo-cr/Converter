@@ -1,14 +1,12 @@
-package com.example.currencyconverter.ui.screen
+package com.example.currencyconverter.ui.screen.currency
 
-import com.example.currencyconverter.ui.screen.currency.CurrencyVM
 
-//class ExchangeScreen {
-//}
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -65,67 +63,58 @@ fun CurrencyScreen(
             Column(modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp)) {
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(rates) { rate ->
-                        RateItem(
-                            rate = rate,
-                            amount = amount,
-                            isSelected = rate.currency == baseCurrency,
-                            onClick = {
-                                currencyViewModel.setBaseCurrency(rate.currency)
-                            },
-                            onAmountChange = { newAmount ->
-                                currencyViewModel.setAmount(newAmount)
-                            }
-                        )
+                            RateItem(
+                                rate = rate,
+                                baseCurrency = baseCurrency,
+                                onClick = {
+                                    currencyViewModel.setBaseCurrency(rate.currency)
+                                },
+                                onValueClick = {}
+                            )
+                        }
                     }
                 }
             }
         }
     }
-}
+
 
 @Composable
-private fun RateItem(
+ fun RateItem(
     rate: RateDto,
-    isSelected: Boolean,
-    amount: String,
+    baseCurrency: String,
     onClick: () -> Unit,
-    onAmountChange: (String) -> Unit
+    onValueClick: () -> Unit,
 ) {
-    var isEditingAmount by remember { mutableStateOf(false) }
-    val focusRequester = remember { FocusRequester() }
+    val isSelected = rate.currency == baseCurrency
 
-    LaunchedEffect(isEditingAmount) {
-        if (isEditingAmount) {
-            focusRequester.requestFocus()
-        }
-    }
-
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(2.dp)
             .clickable {
-                onClick() // Меняем выбранную валюту при клике
-                isEditingAmount = true
+                onClick()
             },
-        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text(
-            text = rate.currency,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-        )
-
-        if (isSelected && isEditingAmount) {
-            BasicTextField(
-                value = amount,
-                onValueChange = onAmountChange,
-                modifier = Modifier.focusRequester(focusRequester),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = rate.currency,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
             )
-        } else {
-            Text(text = rate.value.rounderNumber())
+            Text(
+                text = rate.value.rounderNumber(),
+                modifier = Modifier
+                    .clickable(enabled = isSelected) {
+                        onValueClick()
+                    }
+                    .padding(horizontal = 4.dp)
+            )
         }
     }
 }
+
