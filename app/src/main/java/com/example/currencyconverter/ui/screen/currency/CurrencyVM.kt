@@ -46,11 +46,13 @@ class CurrencyVM @Inject constructor(
             }
         }
     }
+
     fun loadRates(baseCurrencyCode: String = "USD", amount: Double = 1.0) {
         currentLoadJob?.cancel()
         currentLoadJob = viewModelScope.launch {
             while (isActive) {
                 try {
+
                     val result = ratesService.getRates(baseCurrencyCode, amount)
                     val accounts = accountRepository.getAllAccounts() // Получаем балансы из БД
                     val mappedRates = mapToExchangeRates(result, accounts) // Теперь с балансами
@@ -70,8 +72,10 @@ class CurrencyVM @Inject constructor(
             _baseCurrency.value = currencyCode
             _amount.value = "1"
             viewModelScope.launch {
+
                 loadRates(baseCurrencyCode = currencyCode, amount = _amount.value.toDoubleOrNull() ?: 1.0)
             }
         }
     }
+
 }
