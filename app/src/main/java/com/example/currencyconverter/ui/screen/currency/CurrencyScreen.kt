@@ -57,6 +57,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.example.currencyconverter.data.dataSource.remote.dto.RateDto
 import com.example.currencyconverter.domain.entity.ExchangeRate
 import com.example.currencyconverter.ui.screen.currency.component.RateItem
@@ -91,7 +92,7 @@ fun CurrencyScreen(
                                 onAmountChange = { newAmount ->
                                     currencyViewModel.setAmount(newAmount)
                                 },
-                                amount = amount
+                                amount = amount,
                             )
                         }
                     }

@@ -1,8 +1,10 @@
 package com.example.currencyconverter.ui.navigation
 
 sealed class Screen(val route: String) {
+    object Currency : Screen("currency_screen")
+    object Exchange : Screen("exchange_screen") {
+        const val routeWithArgs = "exchange_screen/{base}/{target}/{amount}"
 
-    object Currency : Screen("currency")
-    object Exchange : Screen("exchange")
-    object Transactions : Screen("transactions")
+    }
+    object Transactions : Screen("transactions_screen")
 }
