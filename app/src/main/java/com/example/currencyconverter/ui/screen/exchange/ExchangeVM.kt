@@ -1,9 +1,18 @@
 package com.example.currencyconverter.ui.screen.exchange
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.currencyconverter.data.dataSource.remote.RatesService
 import com.example.currencyconverter.domain.entity.AccountRepository
+import com.example.currencyconverter.domain.entity.ExchangeRate
+import com.example.currencyconverter.domain.entity.mapToExchangeRates
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -12,4 +21,48 @@ class ExchangeVM @Inject constructor(
     private val accountRepository: AccountRepository
 ) : ViewModel() {
 
+    private val _rates = MutableStateFlow<List<ExchangeRate>>(emptyList())
+    val rates: StateFlow<List<ExchangeRate>> = _rates
+
+    var exchangeParams = mutableStateOf(ExchangeParams())
+    init {
+        loadRates()
+    }
+    private fun loadRates() {
+        viewModelScope.launch {
+            while (isActive) {
+                try {
+                    val baseCurrency = exchangeParams.value.fromCurrency
+                    val amountStr = exchangeParams.value.amount
+                    val amount = amountStr.toDoubleOrNull() ?: 1.0
+
+                    if (baseCurrency.isNotBlank()) {
+                        val result = ratesService.getRates(baseCurrency, amount)
+
+
+                        val fromCurrency = exchangeParams.value.fromCurrency
+                        val toCurrency = exchangeParams.value.toCurrency
+                        val filteredResult = result.filter { it.currency == fromCurrency || it.currency == toCurrency }
+
+                        val accounts = accountRepository.getAllAccounts()
+                        val mappedRates = mapToExchangeRates(filteredResult, accounts)
+                        _rates.value = mappedRates
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+                delay(1000)
+            }
+        }
+    }
+    fun updateAmount(newAmount: String) {
+        exchangeParams.value = exchangeParams.value.copy(amount = newAmount)
+    }
+
+    data class ExchangeParams(
+        val fromCurrency: String = "",
+        val toCurrency: String = "",
+        val amount: String = ""
+    )
 }

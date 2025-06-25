@@ -35,7 +35,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.example.currencyconverter.domain.entity.ExchangeRate
 import com.example.currencyconverter.ui.navigation.LocalNavController
 import com.example.currencyconverter.ui.utils.rounderNumber

@@ -96,7 +96,7 @@ fun ExchangeItem(
             ) {
                 Text(
                     text = rate.currency.symbol,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                    fontWeight = FontWeight.Bold ,
                     modifier = Modifier.padding(end = 4.dp),
 
                     )
