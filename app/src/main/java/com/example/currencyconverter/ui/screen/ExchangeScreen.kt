@@ -34,7 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.currencyconverter.data.dataSource.remote.dto.RateDto
+
 import com.example.currencyconverter.ui.utils.rounderNumber
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -42,90 +42,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.input.KeyboardType
-
-@Composable
-fun CurrencyScreen(
-    currencyViewModel: CurrencyVM = hiltViewModel()
-) {
-    val rates by currencyViewModel.rates.collectAsState()
-    val baseCurrency by currencyViewModel.baseCurrency.collectAsState()
-    val amount by currencyViewModel.amount.collectAsState()
-
-    LaunchedEffect(Unit) {
-        currencyViewModel.loadRates(
-            baseCurrencyCode = baseCurrency,
-            amount = amount.toDoubleOrNull() ?: 1.0
-        )
-    }
+import com.example.currencyconverter.domain.entity.ExchangeRate
 
 
-    when {
-        rates.isEmpty() -> CircularProgressIndicator(modifier = Modifier.padding(16.dp))
-        else -> {
-            Column(modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp)) {
-                LazyColumn(modifier = Modifier.weight(1f)) {
-                    items(rates) { rate ->
-                        RateItem(
-                            rate = rate,
-                            amount = amount,
-                            isSelected = rate.currency == baseCurrency,
-                            onClick = {
-                                currencyViewModel.setBaseCurrency(rate.currency)
-                            },
-                            onAmountChange = { newAmount ->
-                                currencyViewModel.setAmount(newAmount)
-                            }
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun RateItem(
-    rate: RateDto,
-    isSelected: Boolean,
-    amount: String,
-    onClick: () -> Unit,
-    onAmountChange: (String) -> Unit
-) {
-    var isEditingAmount by remember { mutableStateOf(false) }
-    val focusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(isEditingAmount) {
-        if (isEditingAmount) {
-            focusRequester.requestFocus()
-        }
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .clickable {
-                onClick() // Меняем выбранную валюту при клике
-                isEditingAmount = true
-            },
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(
-            text = rate.currency,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-        )
-
-        if (isSelected && isEditingAmount) {
-            BasicTextField(
-                value = amount,
-                onValueChange = onAmountChange,
-                modifier = Modifier.focusRequester(focusRequester),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End)
-            )
-        } else {
-            Text(text = rate.value.rounderNumber())
-        }
-    }
-}

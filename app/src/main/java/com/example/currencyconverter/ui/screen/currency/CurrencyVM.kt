@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.currencyconverter.data.dataSource.remote.RatesService
 import com.example.currencyconverter.data.dataSource.remote.dto.RateDto
+import com.example.currencyconverter.domain.entity.ExchangeRate
+import com.example.currencyconverter.domain.entity.mapToExchangeRates
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -29,8 +31,8 @@ class CurrencyVM @Inject constructor(
         _amount.value = value
     }
 
-    private val _rates = MutableStateFlow<List<RateDto>>(emptyList())
-    val rates: StateFlow<List<RateDto>> = _rates
+    private val _rates = MutableStateFlow<List<ExchangeRate>>(emptyList())
+    val rates: StateFlow<List<ExchangeRate>> = _rates
 
     // Для отмены предыдущей загрузки
     private var currentLoadJob: Job? = null
@@ -43,14 +45,15 @@ class CurrencyVM @Inject constructor(
         }
     }
     fun loadRates(baseCurrencyCode: String = "USD", amount: Double = 1.0) {
-        currentLoadJob?.cancel() // Отменяем предыдущую загрузку
+        currentLoadJob?.cancel()
         currentLoadJob = viewModelScope.launch {
-            while (isActive) { // Проверяем активность корутины
+            while (isActive) {
                 try {
                     val result = ratesService.getRates(baseCurrencyCode, amount)
-                    _rates.value = result
+                    val mappedRates = mapToExchangeRates(result) // Здесь применяется маппинг
+                    _rates.value = mappedRates
                 } catch (e: Exception) {
-                    // Можно добавить логирование
+                    // Можно добавить логирование ошибки
                 }
 
                 delay(1000)
@@ -61,6 +64,7 @@ class CurrencyVM @Inject constructor(
     fun setBaseCurrency(currencyCode: String) {
         if (_baseCurrency.value != currencyCode) {
             _baseCurrency.value = currencyCode
+            _amount.value = "1"
             viewModelScope.launch {
                 loadRates(baseCurrencyCode = currencyCode, amount = _amount.value.toDoubleOrNull() ?: 1.0)
             }
