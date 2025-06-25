@@ -16,7 +16,7 @@ interface AccountDao {
 
 
     @Query("SELECT * FROM accounts")
-    suspend fun getAll(): List<AccountDbo>
+    suspend fun getAllAccounts(): List<AccountDbo>
 
     @Query("SELECT * FROM accounts")
     fun getAllAsFlow(): Flow<List<AccountDbo>>

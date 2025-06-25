@@ -8,6 +8,9 @@ import javax.inject.Inject
 class AccountRepository @Inject constructor(
     private val accountDao: AccountDao
 ) {
+    suspend fun getAllAccounts(): List<AccountDbo> {
+        return accountDao.getAllAccounts()
+    }
     suspend fun accountIsEmpty(): Boolean {
         return accountDao.isEmpty()
     }

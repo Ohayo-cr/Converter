@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.currencyconverter.data.dataSource.remote.RatesService
 import com.example.currencyconverter.data.dataSource.remote.dto.RateDto
+import com.example.currencyconverter.domain.entity.AccountRepository
 import com.example.currencyconverter.domain.entity.ExchangeRate
 import com.example.currencyconverter.domain.entity.mapToExchangeRates
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CurrencyVM @Inject constructor(
-    private val ratesService: RatesService
+    private val ratesService: RatesService,
+    private val accountRepository: AccountRepository
 ) : ViewModel() {
 
 
@@ -50,10 +52,12 @@ class CurrencyVM @Inject constructor(
             while (isActive) {
                 try {
                     val result = ratesService.getRates(baseCurrencyCode, amount)
-                    val mappedRates = mapToExchangeRates(result) // Здесь применяется маппинг
+                    val accounts = accountRepository.getAllAccounts() // Получаем балансы из БД
+                    val mappedRates = mapToExchangeRates(result, accounts) // Теперь с балансами
                     _rates.value = mappedRates
                 } catch (e: Exception) {
                     // Можно добавить логирование ошибки
+                    e.printStackTrace()
                 }
 
                 delay(1000)
