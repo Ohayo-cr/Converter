@@ -5,21 +5,28 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.currencyconverter.data.dataSource.remote.RatesService
 import com.example.currencyconverter.data.dataSource.room.account.dbo.AccountDbo
+import com.example.currencyconverter.data.dataSource.room.transaction.dbo.TransactionDbo
 import com.example.currencyconverter.domain.repository.AccountRepository
 import com.example.currencyconverter.domain.entity.ExchangeRate
 import com.example.currencyconverter.data.mapper.mapToExchangeRates
+import com.example.currencyconverter.domain.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
+import java.math.RoundingMode
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class ExchangeVM @Inject constructor(
     private val ratesService: RatesService,
-    private val accountRepository: AccountRepository
+    private val accountRepository: AccountRepository,
+    private val transactionRepository: TransactionRepository
 ) : ViewModel() {
 
     private val _accounts = MutableStateFlow<List<AccountDbo>>(emptyList())
@@ -80,6 +87,28 @@ class ExchangeVM @Inject constructor(
         viewModelScope.launch {
             val accounts = accountRepository.getAllAccounts()
             _accounts.value = accounts
+        }
+    }
+
+    fun saveTransaction(
+        fromCurrency: String,
+        toCurrency: String,
+        fromAmount: Double,
+        toAmount: Double
+    ) {
+        val roundedFromAmount = BigDecimal(fromAmount).setScale(2, RoundingMode.HALF_UP).toDouble()
+        val roundedToAmount = BigDecimal(toAmount).setScale(2, RoundingMode.HALF_UP).toDouble()
+        val transaction = TransactionDbo(
+            id = 0, // autoGenerate = true
+            from = fromCurrency,
+            to = toCurrency,
+            fromAmount = roundedFromAmount,
+            toAmount = roundedToAmount,
+            dateTime = LocalDateTime.now()
+        )
+
+        viewModelScope.launch(Dispatchers.IO) {
+            transactionRepository.insert(transaction)
         }
     }
 }

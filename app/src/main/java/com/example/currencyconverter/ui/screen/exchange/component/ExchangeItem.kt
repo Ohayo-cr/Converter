@@ -87,7 +87,7 @@ fun ExchangeItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 val sign = if (isSelected) "+" else "-"
-                val value = if (isSelected) amount else rate.secondaryValue.rounderNumber(2)
+                val valueToBD = if (isSelected) amount else rate.secondaryValue.rounderNumber(2)
                 Text(
                     text ="$sign${rate.secondaryCurrency.symbol}",
                     fontWeight = FontWeight.Bold ,
@@ -95,7 +95,7 @@ fun ExchangeItem(
 
                     )
                 BasicTextField(
-                    value = value,
+                    value = valueToBD,
                     onValueChange = {},
                     enabled = false,
                     singleLine = true,

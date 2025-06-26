@@ -29,6 +29,7 @@ import com.example.currencyconverter.domain.entity.Currency
 import com.example.currencyconverter.ui.screen.exchange.component.ExchangeItem
 import com.example.currencyconverter.ui.screen.exchange.component.calculateExchangeRate
 import com.example.currencyconverter.ui.utils.rounderNumber
+import kotlin.math.roundToInt
 
 
 @Composable
@@ -99,8 +100,12 @@ fun ExchangeScreen(fromCurrency: String, toCurrency: String, amount: String, val
         Spacer(modifier = Modifier.height(24.dp))
         Button(
             onClick = {
-                if (!isLoading) {
-                }
+                viewModel.saveTransaction(
+                    fromCurrency = fromCurrency,
+                    toCurrency = toCurrency,
+                    fromAmount = amount.toDouble(),
+                    toAmount = value.toDouble()
+                )
             },
             enabled = !isLoading,
             colors = ButtonDefaults.buttonColors(

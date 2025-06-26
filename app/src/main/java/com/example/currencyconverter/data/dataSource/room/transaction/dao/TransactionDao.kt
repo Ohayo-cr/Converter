@@ -5,10 +5,12 @@ import androidx.room.Insert
 import androidx.room.Query
 import com.example.currencyconverter.data.dataSource.room.transaction.dbo.TransactionDbo
 
+
 @Dao
 interface TransactionDao {
     @Insert
-    suspend fun insertAll(vararg transactions: TransactionDbo)
+    suspend fun insertTransaction(vararg transactions: TransactionDbo)
+
 
     @Query("SELECT * FROM transactions")
     suspend fun getAll(): List<TransactionDbo>
