@@ -23,7 +23,8 @@ class ExchangeVM @Inject constructor(
 
     private val _rates = MutableStateFlow<List<ExchangeRate>>(emptyList())
     val rates: StateFlow<List<ExchangeRate>> = _rates
-
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> = _isLoading
     var exchangeParams = mutableStateOf(ExchangeParams())
     init {
         loadRates()
@@ -50,6 +51,8 @@ class ExchangeVM @Inject constructor(
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
+                } finally {
+                    _isLoading.value = false // Конец загрузки
                 }
 
                 delay(1000)

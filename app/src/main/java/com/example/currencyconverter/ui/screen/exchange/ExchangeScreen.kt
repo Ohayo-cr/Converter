@@ -24,10 +24,12 @@ import com.example.currencyconverter.ui.screen.exchange.component.ExchangeItem
 
 
 @Composable
-fun ExchangeScreen(fromCurrency: String, toCurrency: String, amount: String,
+fun ExchangeScreen(fromCurrency: String, toCurrency: String, amount: String, value : String,
     viewModel: ExchangeVM = hiltViewModel()
     ) {
+
     val rates by viewModel.rates.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
     LaunchedEffect(Unit) {
         viewModel.exchangeParams = mutableStateOf(
             ExchangeVM.ExchangeParams(fromCurrency, toCurrency, amount)
@@ -68,6 +70,12 @@ fun ExchangeScreen(fromCurrency: String, toCurrency: String, amount: String,
         ) {
             Text(text = "Обменять")
         }
+        Text(value)
+        Text(fromCurrency)
+        Text(toCurrency)
+        Text(value)
+
+
     }
 }
 

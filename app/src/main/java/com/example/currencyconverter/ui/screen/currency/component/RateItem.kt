@@ -47,7 +47,7 @@ fun RateItem(
     onAmountChange: (String) -> Unit,
     amount: String,
 ) {
-    val navController = LocalNavController.current
+
     val isDoubleMode = amount != "1"
     val isSelected = rate.currency.code == baseCurrency
     val painter = painterResource(id = rate.currency.flagResId)
@@ -61,13 +61,7 @@ fun RateItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(2.dp)
-            .clickable {
-                if (!isDoubleMode) {
-                    onClick()
-                } else {
-                    navController.navigate("exchange_screen/${baseCurrency}/${rate.currency.code}/$amount")
-                }
-            }
+            .clickable { onClick() }
     ) {
         Row(
             modifier = Modifier

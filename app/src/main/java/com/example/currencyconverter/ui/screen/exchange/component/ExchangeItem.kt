@@ -71,7 +71,7 @@ fun ExchangeItem(
 
                 Text(
                     text = rate.currency.code,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                    fontWeight =  FontWeight.Bold
                 )
                 Text(
                     text = rate.currency.fullName,
@@ -103,32 +103,14 @@ fun ExchangeItem(
                 BasicTextField(
                     value = if (isSelected) amount else rate.value.rounderNumber(),
                     onValueChange = onAmountChange,
-                    enabled = isSelected,
+                    enabled = false,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
                     modifier = Modifier.width(IntrinsicSize.Min)
 
                 )
-                if (isSelected) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Box(
-                        modifier = Modifier
-                            .size(18.dp)
-                            .clip(CircleShape)
-                            .background(Color.Red.copy(alpha = 0.9f))
-                            .clickable { onAmountChange("1") }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Sum = 1",
-                            tint = Color.White,
-                            modifier = Modifier
-                                .padding(2.dp)
-                                .size(14.dp)
-                        )
-                    }
-                }
+
             }
         }
     }

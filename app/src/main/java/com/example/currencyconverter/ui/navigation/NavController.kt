@@ -37,14 +37,16 @@ fun NavHostScreen(navController: NavHostController) {
                 arguments = listOf(
                     navArgument("base") { type = NavType.StringType },
                     navArgument("target") { type = NavType.StringType },
-                    navArgument("amount") { type = NavType.StringType }
+                    navArgument("amount") { type = NavType.StringType },
+                    navArgument("value") { type = NavType.StringType },
                 )
             ) { backStackEntry ->
                 val base = backStackEntry.arguments?.getString("base") ?: ""
                 val target = backStackEntry.arguments?.getString("target") ?: ""
                 val amount = backStackEntry.arguments?.getString("amount") ?: ""
+                val value = backStackEntry.arguments?.getString("value") ?: ""
 
-                ExchangeScreen(fromCurrency = base, toCurrency = target, amount = amount)
+                ExchangeScreen(fromCurrency = base, toCurrency = target, amount = amount, value = value)
             }
         }
     }
