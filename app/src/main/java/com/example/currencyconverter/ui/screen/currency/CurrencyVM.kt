@@ -10,10 +10,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 
 @HiltViewModel
 class CurrencyVM @Inject constructor(
@@ -21,28 +24,41 @@ class CurrencyVM @Inject constructor(
     private val accountRepository: AccountRepository,
 ) : ViewModel() {
 
+    private val _mainCurrency = MutableStateFlow("USD")
+    val mainCurrency: StateFlow<String> = _mainCurrency
 
+    private val _mainAmount = MutableStateFlow("1")
+    val mainAmount: StateFlow<String> = _mainAmount
 
-    private val _maneCurrency = MutableStateFlow("USD")
-    val maneCurrency: StateFlow<String> = _maneCurrency
+    // Хранит актуальные курсы, полученные с сервера
+    private val _baseRates = MutableStateFlow<List<ExchangeRate>>(emptyList())
+    val baseRates: StateFlow<List<ExchangeRate>> = _baseRates
 
-    private val _maneAmount = MutableStateFlow("1")
-    val maneAmount: StateFlow<String>  = _maneAmount
-
-
-    private val _rates = MutableStateFlow<List<ExchangeRate>>(emptyList())
-    val rates: StateFlow<List<ExchangeRate>> = _rates
-
-
+    // Рассчитывает финальные значения на основе _mainAmount и _baseRates
+    val calculatedRates: StateFlow<List<ExchangeRate>> = combine(
+        _baseRates,
+        _mainAmount
+    ) { rates, amountStr ->
+        val amount = amountStr.toDoubleOrNull() ?: 1.0
+        rates.map { rate -> rate.copy(secondaryValue = rate.
+        secondaryValue* amount) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     private var currentLoadJob: Job? = null
+
     init {
         viewModelScope.launch {
-            _maneAmount.collect { amountStr ->
+            _mainAmount.collect { amountStr ->
                 val amount = amountStr.toDoubleOrNull() ?: return@collect
-                loadRates(baseCurrencyCode = _maneCurrency.value, amount = amount)
+                if (_baseRates.value.isNotEmpty()) {
+                    // Только пересчёт — НЕ ЗАПРОС К СЕРВЕРУ
+                    // Это уже реализовано через calculatedRates
+                }
             }
         }
+
+        // Запускаем постоянный цикл обновления курсов
+        loadRates(baseCurrencyCode = "USD", amount = 1.0)
     }
 
     private fun loadRates(baseCurrencyCode: String = "USD", amount: Double = 1.0) {
@@ -50,13 +66,11 @@ class CurrencyVM @Inject constructor(
         currentLoadJob = viewModelScope.launch {
             while (isActive) {
                 try {
-
                     val result = ratesService.getRates(baseCurrencyCode, amount)
-                    val accounts = accountRepository.getAllAccounts() // Получаем балансы из БД
-                    val mappedRates = mapToExchangeRates(result, accounts) // Теперь с балансами
-                    _rates.value = mappedRates
+                    val accounts = accountRepository.getAllAccounts()
+                    val mappedRates = mapToExchangeRates(result, accounts)
+                    _baseRates.value = mappedRates
                 } catch (e: Exception) {
-                    // Можно добавить логирование ошибки
                     e.printStackTrace()
                 }
 
@@ -64,19 +78,18 @@ class CurrencyVM @Inject constructor(
             }
         }
     }
+
     fun setAmount(value: String) {
-        _maneAmount.value = value
+        _mainAmount.value = value
     }
 
-    fun setNewManeCurrency(currencyCode: String) {
-        if (_maneCurrency.value != currencyCode) {
-            _maneCurrency.value = currencyCode
-            _maneAmount.value = "1"
+    fun setNewMainCurrency(currencyCode: String) {
+        if (_mainCurrency.value != currencyCode) {
+            _mainCurrency.value = currencyCode
+            _mainAmount.value = "1"
             viewModelScope.launch {
-
-                loadRates(baseCurrencyCode = currencyCode, amount = _maneAmount.value.toDoubleOrNull() ?: 1.0)
+                loadRates(baseCurrencyCode = currencyCode, amount = 1.0)
             }
         }
     }
-
 }

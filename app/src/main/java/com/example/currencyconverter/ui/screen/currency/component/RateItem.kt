@@ -44,7 +44,7 @@ fun RateItem(
     baseCurrency: String,
     onClick: () -> Unit,
     onAmountChange: (String) -> Unit,
-    amount: String,
+    amount: String
 ) {
 
     val isDoubleMode = amount != "1"

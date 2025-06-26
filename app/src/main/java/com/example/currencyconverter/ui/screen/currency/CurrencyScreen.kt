@@ -14,10 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.currencyconverter.data.dataSource.remote.dto.RateDto
-import com.example.currencyconverter.domain.entity.ExchangeRate
 import com.example.currencyconverter.ui.navigation.LocalNavController
 import com.example.currencyconverter.ui.screen.currency.component.RateItem
+
 
 
 @Composable
@@ -25,9 +24,9 @@ fun CurrencyScreen(
     currencyViewModel: CurrencyVM = hiltViewModel(),
 ) {
     val navController = LocalNavController.current
-    val rates by currencyViewModel.rates.collectAsState()
-    val maneCurrency by currencyViewModel.maneCurrency.collectAsState()
-    val maneAmount by currencyViewModel.maneAmount.collectAsState()
+    val rates by currencyViewModel.calculatedRates.collectAsState()
+    val maneCurrency by currencyViewModel.mainCurrency.collectAsState()
+    val mainAmount by currencyViewModel.mainAmount.collectAsState()
     val listState = rememberLazyListState()
 
 
@@ -43,17 +42,17 @@ fun CurrencyScreen(
                                 rate = rate,
                                 baseCurrency = maneCurrency,
                                 onClick = {
-                                    if (maneAmount == "1") {
+                                     if (mainAmount == "1") {
                                         // Если в одинарном режиме — меняем базовую валюту
-                                        currencyViewModel.setNewManeCurrency(rate.secondaryCurrency.code)
+                                        currencyViewModel.setNewMainCurrency(rate.secondaryCurrency.code)
                                     } else {
-                                        navController.navigate("exchange_screen/${maneCurrency}/${rate.secondaryCurrency.code}/$maneAmount/${rate.secondaryValue}")
+                                        navController.navigate("exchange_screen/${maneCurrency}/${rate.secondaryCurrency.code}/$mainAmount/${rate.secondaryValue}")
                                     }
                                 },
                                 onAmountChange = { newAmount ->
                                     currencyViewModel.setAmount(newAmount)
                                 },
-                                amount = maneAmount,
+                                amount = mainAmount,
                             )
                         }
                     }
