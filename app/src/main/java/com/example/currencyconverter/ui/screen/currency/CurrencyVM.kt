@@ -3,9 +3,9 @@ package com.example.currencyconverter.ui.screen.currency
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.currencyconverter.data.dataSource.remote.RatesService
-import com.example.currencyconverter.domain.entity.AccountRepository
+import com.example.currencyconverter.domain.repository.AccountRepository
 import com.example.currencyconverter.domain.entity.ExchangeRate
-import com.example.currencyconverter.domain.entity.mapToExchangeRates
+import com.example.currencyconverter.data.mapper.mapToExchangeRates
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -30,11 +30,10 @@ class CurrencyVM @Inject constructor(
     private val _mainAmount = MutableStateFlow("1")
     val mainAmount: StateFlow<String> = _mainAmount
 
-    // Хранит актуальные курсы, полученные с сервера
+
     private val _baseRates = MutableStateFlow<List<ExchangeRate>>(emptyList())
     val baseRates: StateFlow<List<ExchangeRate>> = _baseRates
 
-    // Рассчитывает финальные значения на основе _mainAmount и _baseRates
     val calculatedRates: StateFlow<List<ExchangeRate>> = combine(
         _baseRates,
         _mainAmount
@@ -51,13 +50,10 @@ class CurrencyVM @Inject constructor(
             _mainAmount.collect { amountStr ->
                 val amount = amountStr.toDoubleOrNull() ?: return@collect
                 if (_baseRates.value.isNotEmpty()) {
-                    // Только пересчёт — НЕ ЗАПРОС К СЕРВЕРУ
-                    // Это уже реализовано через calculatedRates
                 }
             }
         }
 
-        // Запускаем постоянный цикл обновления курсов
         loadRates(baseCurrencyCode = "USD", amount = 1.0)
     }
 

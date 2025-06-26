@@ -10,8 +10,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-
-
 import com.example.currencyconverter.ui.screen.currency.CurrencyScreen
 import com.example.currencyconverter.ui.screen.exchange.ExchangeScreen
 

@@ -37,13 +37,13 @@ fun CurrencyScreen(
                 .fillMaxSize()
                 .padding(horizontal = 8.dp)) {
                 LazyColumn(state = listState) {
-                    items(items = rates, key = { it.secondaryCurrency.code }) { rate ->
+                    items(items = rates) { rate ->
                             RateItem(
                                 rate = rate,
                                 baseCurrency = maneCurrency,
                                 onClick = {
                                      if (mainAmount == "1") {
-                                        // Если в одинарном режиме — меняем базовую валюту
+
                                         currencyViewModel.setNewMainCurrency(rate.secondaryCurrency.code)
                                     } else {
                                         navController.navigate("exchange_screen/${maneCurrency}/${rate.secondaryCurrency.code}/$mainAmount/${rate.secondaryValue}")

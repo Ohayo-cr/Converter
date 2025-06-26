@@ -2,7 +2,7 @@ package com.example.currencyconverter
 
 import android.app.Application
 import com.example.currencyconverter.data.dataSource.room.DefaultAccount
-import com.example.currencyconverter.domain.entity.AccountRepository
+import com.example.currencyconverter.domain.repository.AccountRepository
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch

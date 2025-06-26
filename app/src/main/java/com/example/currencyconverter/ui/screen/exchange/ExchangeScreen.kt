@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.currencyconverter.domain.entity.Currency
-import com.example.currencyconverter.domain.entity.ExchangeRate
 import com.example.currencyconverter.ui.screen.exchange.component.ExchangeItem
 import com.example.currencyconverter.ui.screen.exchange.component.calculateExchangeRate
 import com.example.currencyconverter.ui.utils.rounderNumber
@@ -49,7 +48,7 @@ fun ExchangeScreen(fromCurrency: String, toCurrency: String, amount: String, val
     val balanceMap = remember(accountList) {
         accountList.associateBy({ it.code }, { it.amount })
     }
-    // Используем готовую функцию calculateExchangeRate
+
     val exchangeRate = remember(fromCurrency, toCurrency, amount, value, balanceMap) {
         calculateExchangeRate(
             fromCurrencyCode = fromCurrency,
@@ -59,7 +58,6 @@ fun ExchangeScreen(fromCurrency: String, toCurrency: String, amount: String, val
             accountBalances = balanceMap
         )
     }
-
 
     LaunchedEffect(Unit) {
         viewModel.exchangeParams = mutableStateOf(
@@ -74,8 +72,8 @@ fun ExchangeScreen(fromCurrency: String, toCurrency: String, amount: String, val
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "${Currency.entries.find { it.code == fromCurrency }?.fullName} " +
-                    "to ${Currency.entries.find { it.code == toCurrency }?.fullName}"
+            text = "${Currency.entries.find { it.code == toCurrency }?.fullName} " +
+                    "to ${Currency.entries.find { it.code == fromCurrency }?.fullName}"
         )
         Text(text = "${Currency.entries.find { it.code == fromCurrency }?.symbol}1 = ${Currency.entries.find { it.code == toCurrency }?.symbol}${course.rounderNumber()} ")
         Spacer(modifier = Modifier.height(24.dp))
@@ -98,7 +96,7 @@ fun ExchangeScreen(fromCurrency: String, toCurrency: String, amount: String, val
                 )
             }
         }
-
+        Spacer(modifier = Modifier.height(24.dp))
         Button(
             onClick = {
                 if (!isLoading) {
@@ -125,8 +123,8 @@ fun ExchangeScreen(fromCurrency: String, toCurrency: String, amount: String, val
                     Text(text = "Loading course...")
                 }
             } else {
-                Text(text = "Bay ${Currency.entries.find { it.code == toCurrency }?.fullName} " +
-                        "for ${Currency.entries.find { it.code == fromCurrency }?.fullName}")
+                Text(text = "Bay ${Currency.entries.find { it.code == fromCurrency }?.fullName}  " +
+                        "for ${Currency.entries.find { it.code == toCurrency }?.fullName}")
             }
         }
     }

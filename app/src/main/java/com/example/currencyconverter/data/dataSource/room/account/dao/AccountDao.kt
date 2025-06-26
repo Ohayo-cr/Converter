@@ -11,9 +11,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AccountDao {
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllAccount(accounts: List<AccountDbo>)
-
 
     @Query("SELECT * FROM accounts")
     suspend fun getAllAccounts(): List<AccountDbo>
@@ -23,6 +23,7 @@ interface AccountDao {
 
     @Query("SELECT * FROM accounts WHERE currency_code = :code LIMIT 1")
     suspend fun getAccountByCode(code: String): AccountDbo?
+
     @Query("SELECT COUNT(*) == 0 FROM accounts")
     suspend fun isEmpty(): Boolean
 }

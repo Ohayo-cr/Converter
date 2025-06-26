@@ -46,14 +46,15 @@ fun RateItem(
     onAmountChange: (String) -> Unit,
     amount: String
 ) {
-
+    val isAmountEmpty = amount.isBlank()
     val isDoubleMode = amount != "1"
     val isSelected = rate.secondaryCurrency.code == baseCurrency
     val painter = painterResource(id = rate.secondaryCurrency.flagResId)
-    if (isDoubleMode && !isSelected && (rate.balanceAccount ?: 0.0) < rate.secondaryValue) {
-        Box(modifier = Modifier
-            .height(0.dp)
-            .alpha(0f)) {}
+    if (
+        (isAmountEmpty && !isSelected) ||
+        (isDoubleMode && !isSelected && (rate.balanceAccount ?: 0.0) < rate.secondaryValue)
+    ) {
+        Box(modifier = Modifier.height(0.dp).alpha(0f)) {}
         return
     }
     Box(
@@ -109,7 +110,7 @@ fun RateItem(
                     modifier = Modifier.padding(end = 4.dp),
 
                     )
-                val allowedChars = Regex("^[0-9.]*$")
+                val allowedChars = Regex("^\\d*(\\.\\d{0,2})?$")
 
                 BasicTextField(
                     value = if (isSelected) amount else rate.secondaryValue.rounderNumber(),

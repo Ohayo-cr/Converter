@@ -7,9 +7,9 @@ import com.example.currencyconverter.data.dataSource.remote.RemoteRatesServiceIm
 import com.example.currencyconverter.data.dataSource.room.ConverterDatabase
 import com.example.currencyconverter.data.dataSource.room.account.dao.AccountDao
 import com.example.currencyconverter.data.dataSource.room.transaction.dao.TransactionDao
-import com.example.currencyconverter.domain.entity.AccountRepository
+import com.example.currencyconverter.domain.repository.AccountRepository
 
-import com.example.currencyconverter.domain.entity.CurrencyRepository
+import com.example.currencyconverter.domain.repository.CurrencyRepository
 
 import dagger.Module
 import dagger.Provides
@@ -21,6 +21,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
     @Provides
     @Singleton
     fun provideAppDatabase(@ApplicationContext context: Context): ConverterDatabase {
@@ -30,6 +31,7 @@ object AppModule {
             ConverterDatabase.DATABASE_NAME
         ).build()
     }
+
     @Provides
     @Singleton
     fun provideTransactionDao(appDatabase: ConverterDatabase): TransactionDao {

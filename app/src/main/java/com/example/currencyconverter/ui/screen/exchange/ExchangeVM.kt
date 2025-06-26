@@ -5,10 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.currencyconverter.data.dataSource.remote.RatesService
 import com.example.currencyconverter.data.dataSource.room.account.dbo.AccountDbo
-import com.example.currencyconverter.domain.entity.AccountRepository
-import com.example.currencyconverter.domain.entity.CurrencyRepository
+import com.example.currencyconverter.domain.repository.AccountRepository
 import com.example.currencyconverter.domain.entity.ExchangeRate
-import com.example.currencyconverter.domain.entity.mapToExchangeRates
+import com.example.currencyconverter.data.mapper.mapToExchangeRates
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,9 +19,9 @@ import javax.inject.Inject
 @HiltViewModel
 class ExchangeVM @Inject constructor(
     private val ratesService: RatesService,
-    private val currencyRepository: CurrencyRepository,
     private val accountRepository: AccountRepository
 ) : ViewModel() {
+
     private val _accounts = MutableStateFlow<List<AccountDbo>>(emptyList())
     val accounts: StateFlow<List<AccountDbo>> = _accounts
 
@@ -52,9 +51,9 @@ class ExchangeVM @Inject constructor(
                     if (baseCurrency.isNotBlank()) {
                         val result = ratesService.getRates(baseCurrency, amount)
 
-
                         val fromCurrency = exchangeParams.value.fromCurrency
                         val toCurrency = exchangeParams.value.toCurrency
+
                         val filteredResult = result.filter { it.currency == fromCurrency || it.currency == toCurrency }
 
                         val accounts = accountRepository.getAllAccounts()
@@ -71,7 +70,6 @@ class ExchangeVM @Inject constructor(
             }
         }
     }
-
 
     data class ExchangeParams(
         val fromCurrency: String = "",

@@ -1,4 +1,4 @@
-package com.example.currencyconverter.domain.entity
+package com.example.currencyconverter.domain.repository
 
 
 import javax.inject.Inject
