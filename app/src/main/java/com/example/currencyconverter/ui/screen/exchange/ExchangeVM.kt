@@ -4,7 +4,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.currencyconverter.data.dataSource.remote.RatesService
+import com.example.currencyconverter.data.dataSource.room.account.dbo.AccountDbo
 import com.example.currencyconverter.domain.entity.AccountRepository
+import com.example.currencyconverter.domain.entity.CurrencyRepository
 import com.example.currencyconverter.domain.entity.ExchangeRate
 import com.example.currencyconverter.domain.entity.mapToExchangeRates
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,21 +20,31 @@ import javax.inject.Inject
 @HiltViewModel
 class ExchangeVM @Inject constructor(
     private val ratesService: RatesService,
+    private val currencyRepository: CurrencyRepository,
     private val accountRepository: AccountRepository
 ) : ViewModel() {
+    private val _accounts = MutableStateFlow<List<AccountDbo>>(emptyList())
+    val accounts: StateFlow<List<AccountDbo>> = _accounts
 
     private val _rates = MutableStateFlow<List<ExchangeRate>>(emptyList())
     val rates: StateFlow<List<ExchangeRate>> = _rates
+
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
+
     var exchangeParams = mutableStateOf(ExchangeParams())
+
+
     init {
+        _isLoading.value = true
+        getAccounts()
         loadRates()
     }
     private fun loadRates() {
         viewModelScope.launch {
             while (isActive) {
                 try {
+
                     val baseCurrency = exchangeParams.value.fromCurrency
                     val amountStr = exchangeParams.value.amount
                     val amount = amountStr.toDoubleOrNull() ?: 1.0
@@ -52,20 +64,24 @@ class ExchangeVM @Inject constructor(
                 } catch (e: Exception) {
                     e.printStackTrace()
                 } finally {
-                    _isLoading.value = false // Конец загрузки
+                    _isLoading.value = _rates.value.isEmpty()
                 }
 
                 delay(1000)
             }
         }
     }
-    fun updateAmount(newAmount: String) {
-        exchangeParams.value = exchangeParams.value.copy(amount = newAmount)
-    }
+
 
     data class ExchangeParams(
         val fromCurrency: String = "",
         val toCurrency: String = "",
         val amount: String = ""
     )
+    private fun getAccounts() {
+        viewModelScope.launch {
+            val accounts = accountRepository.getAllAccounts()
+            _accounts.value = accounts
+        }
+    }
 }

@@ -36,7 +36,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.currencyconverter.domain.entity.ExchangeRate
-import com.example.currencyconverter.ui.navigation.LocalNavController
 import com.example.currencyconverter.ui.utils.rounderNumber
 
 @Composable
@@ -49,9 +48,9 @@ fun RateItem(
 ) {
 
     val isDoubleMode = amount != "1"
-    val isSelected = rate.currency.code == baseCurrency
-    val painter = painterResource(id = rate.currency.flagResId)
-    if (isDoubleMode && !isSelected && (rate.balance ?: 0.0) < rate.value) {
+    val isSelected = rate.secondaryCurrency.code == baseCurrency
+    val painter = painterResource(id = rate.secondaryCurrency.flagResId)
+    if (isDoubleMode && !isSelected && (rate.balanceAccount ?: 0.0) < rate.secondaryValue) {
         Box(modifier = Modifier
             .height(0.dp)
             .alpha(0f)) {}
@@ -80,17 +79,17 @@ fun RateItem(
             Column {
 
                 Text(
-                    text = rate.currency.code,
+                    text = rate.secondaryCurrency.code,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                 )
                 Text(
-                    text = rate.currency.fullName,
+                    text = rate.secondaryCurrency.fullName,
                     fontWeight = FontWeight.Normal,
                     color = Color.DarkGray.copy(alpha = .6f)
                 )
-                rate.balance?.let {
+                rate.balanceAccount?.let {
                     Text(
-                        text = "Balance: ${rate.currency.symbol} ${rate.balance.rounderNumber()}",
+                        text = "Balance: ${rate.secondaryCurrency.symbol} ${rate.balanceAccount.rounderNumber()}",
                         fontWeight = FontWeight.Normal,
                         color = Color.DarkGray.copy(alpha = .6f)
                     )
@@ -105,14 +104,20 @@ fun RateItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = rate.currency.symbol,
+                    text = rate.secondaryCurrency.symbol,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                     modifier = Modifier.padding(end = 4.dp),
 
                     )
+                val allowedChars = Regex("^[0-9.]*$")
+
                 BasicTextField(
-                    value = if (isSelected) amount else rate.value.rounderNumber(),
-                    onValueChange = onAmountChange,
+                    value = if (isSelected) amount else rate.secondaryValue.rounderNumber(),
+                    onValueChange = { input ->
+                        if (input.matches(allowedChars)) {
+                            onAmountChange(input)
+                        }
+                    },
                     enabled = isSelected,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),

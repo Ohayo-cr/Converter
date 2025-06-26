@@ -1,8 +1,6 @@
 package com.example.currencyconverter.ui.screen.exchange.component
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,19 +13,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -41,12 +34,11 @@ import com.example.currencyconverter.ui.utils.rounderNumber
 fun ExchangeItem(
     rate: ExchangeRate,
     baseCurrency: String,
-    onAmountChange: (String) -> Unit,
     amount: String
 ) {
 
-    val isSelected = rate.currency.code == baseCurrency
-    val painter = painterResource(id = rate.currency.flagResId)
+    val isSelected = rate.secondaryCurrency.code == baseCurrency
+    val painter = painterResource(id = rate.secondaryCurrency.flagResId)
 
     Box(
         modifier = Modifier
@@ -70,22 +62,22 @@ fun ExchangeItem(
             Column {
 
                 Text(
-                    text = rate.currency.code,
+                    text = rate.secondaryCurrency.code,
                     fontWeight =  FontWeight.Bold
                 )
                 Text(
-                    text = rate.currency.fullName,
+                    text = rate.secondaryCurrency.fullName,
                     fontWeight = FontWeight.Normal,
                     color = Color.DarkGray.copy(alpha = .6f)
                 )
-                rate.balance?.let {
+
                     Text(
-                        text = "Balance: ${rate.currency.symbol} ${rate.balance.rounderNumber()}",
+                        text = "Balance: ${rate.secondaryCurrency.symbol} ${rate.balanceAccount ?: 0.0}",
                         fontWeight = FontWeight.Normal,
                         color = Color.DarkGray.copy(alpha = .6f)
                     )
                 }
-            }
+
 
             Row(
                 modifier = Modifier
@@ -95,14 +87,14 @@ fun ExchangeItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = rate.currency.symbol,
+                    text = rate.secondaryCurrency.symbol,
                     fontWeight = FontWeight.Bold ,
                     modifier = Modifier.padding(end = 4.dp),
 
                     )
                 BasicTextField(
-                    value = if (isSelected) amount else rate.value.rounderNumber(),
-                    onValueChange = onAmountChange,
+                    value = if (isSelected) amount else rate.secondaryValue.rounderNumber(),
+                    onValueChange = {},
                     enabled = false,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),

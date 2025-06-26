@@ -11,10 +11,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.currencyconverter.data.dataSource.remote.dto.RateDto
+import com.example.currencyconverter.domain.entity.ExchangeRate
 import com.example.currencyconverter.ui.navigation.LocalNavController
 import com.example.currencyconverter.ui.screen.currency.component.RateItem
 
@@ -25,8 +26,8 @@ fun CurrencyScreen(
 ) {
     val navController = LocalNavController.current
     val rates by currencyViewModel.rates.collectAsState()
-    val baseCurrency by currencyViewModel.baseCurrency.collectAsState()
-    val amount by currencyViewModel.amount.collectAsState()
+    val maneCurrency by currencyViewModel.maneCurrency.collectAsState()
+    val maneAmount by currencyViewModel.maneAmount.collectAsState()
     val listState = rememberLazyListState()
 
 
@@ -37,22 +38,22 @@ fun CurrencyScreen(
                 .fillMaxSize()
                 .padding(horizontal = 8.dp)) {
                 LazyColumn(state = listState) {
-                    items(items = rates, key = { it.currency.code }) { rate ->
+                    items(items = rates, key = { it.secondaryCurrency.code }) { rate ->
                             RateItem(
                                 rate = rate,
-                                baseCurrency = baseCurrency,
+                                baseCurrency = maneCurrency,
                                 onClick = {
-                                    if (amount == "1") {
+                                    if (maneAmount == "1") {
                                         // Если в одинарном режиме — меняем базовую валюту
-                                        currencyViewModel.setBaseCurrency(rate.currency.code)
+                                        currencyViewModel.setNewManeCurrency(rate.secondaryCurrency.code)
                                     } else {
-                                        navController.navigate("exchange_screen/${baseCurrency}/${rate.currency.code}/$amount/${rate.value}")
+                                        navController.navigate("exchange_screen/${maneCurrency}/${rate.secondaryCurrency.code}/$maneAmount/${rate.secondaryValue}")
                                     }
                                 },
                                 onAmountChange = { newAmount ->
                                     currencyViewModel.setAmount(newAmount)
                                 },
-                                amount = amount,
+                                amount = maneAmount,
                             )
                         }
                     }

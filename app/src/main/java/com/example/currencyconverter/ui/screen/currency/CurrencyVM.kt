@@ -3,7 +3,6 @@ package com.example.currencyconverter.ui.screen.currency
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.currencyconverter.data.dataSource.remote.RatesService
-import com.example.currencyconverter.data.dataSource.remote.dto.RateDto
 import com.example.currencyconverter.domain.entity.AccountRepository
 import com.example.currencyconverter.domain.entity.ExchangeRate
 import com.example.currencyconverter.domain.entity.mapToExchangeRates
@@ -19,35 +18,34 @@ import javax.inject.Inject
 @HiltViewModel
 class CurrencyVM @Inject constructor(
     private val ratesService: RatesService,
-    private val accountRepository: AccountRepository
+    private val accountRepository: AccountRepository,
 ) : ViewModel() {
 
 
 
-    private val _baseCurrency = MutableStateFlow("USD")
-    val baseCurrency: StateFlow<String> = _baseCurrency
-    private val _amount = MutableStateFlow("1")
-    val amount: StateFlow<String>  = _amount
+    private val _maneCurrency = MutableStateFlow("USD")
+    val maneCurrency: StateFlow<String> = _maneCurrency
 
-    fun setAmount(value: String) {
-        _amount.value = value
-    }
+    private val _maneAmount = MutableStateFlow("1")
+    val maneAmount: StateFlow<String>  = _maneAmount
+
 
     private val _rates = MutableStateFlow<List<ExchangeRate>>(emptyList())
     val rates: StateFlow<List<ExchangeRate>> = _rates
 
-    // Для отмены предыдущей загрузки
+
+
     private var currentLoadJob: Job? = null
     init {
         viewModelScope.launch {
-            _amount.collect { amountStr ->
+            _maneAmount.collect { amountStr ->
                 val amount = amountStr.toDoubleOrNull() ?: return@collect
-                loadRates(baseCurrencyCode = _baseCurrency.value, amount = amount)
+                loadRates(baseCurrencyCode = _maneCurrency.value, amount = amount)
             }
         }
     }
 
-    fun loadRates(baseCurrencyCode: String = "USD", amount: Double = 1.0) {
+    private fun loadRates(baseCurrencyCode: String = "USD", amount: Double = 1.0) {
         currentLoadJob?.cancel()
         currentLoadJob = viewModelScope.launch {
             while (isActive) {
@@ -66,14 +64,17 @@ class CurrencyVM @Inject constructor(
             }
         }
     }
+    fun setAmount(value: String) {
+        _maneAmount.value = value
+    }
 
-    fun setBaseCurrency(currencyCode: String) {
-        if (_baseCurrency.value != currencyCode) {
-            _baseCurrency.value = currencyCode
-            _amount.value = "1"
+    fun setNewManeCurrency(currencyCode: String) {
+        if (_maneCurrency.value != currencyCode) {
+            _maneCurrency.value = currencyCode
+            _maneAmount.value = "1"
             viewModelScope.launch {
 
-                loadRates(baseCurrencyCode = currencyCode, amount = _amount.value.toDoubleOrNull() ?: 1.0)
+                loadRates(baseCurrencyCode = currencyCode, amount = _maneAmount.value.toDoubleOrNull() ?: 1.0)
             }
         }
     }

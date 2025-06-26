@@ -8,6 +8,9 @@ import com.example.currencyconverter.data.dataSource.room.ConverterDatabase
 import com.example.currencyconverter.data.dataSource.room.account.dao.AccountDao
 import com.example.currencyconverter.data.dataSource.room.transaction.dao.TransactionDao
 import com.example.currencyconverter.domain.entity.AccountRepository
+
+import com.example.currencyconverter.domain.entity.CurrencyRepository
+
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -46,5 +49,11 @@ object AppModule {
     @Singleton
     fun provideAccountRepository(accountDao: AccountDao): AccountRepository {
         return AccountRepository(accountDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCurrencyRepository(): CurrencyRepository {
+        return CurrencyRepository()
     }
 }

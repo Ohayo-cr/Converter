@@ -3,7 +3,7 @@ package com.example.currencyconverter.domain.entity
 
 
 data class ExchangeRate(
-    val currency: Currency,
-    val value: Double,
-    val balance: Double? = null
+    val secondaryCurrency: Currency,
+    val secondaryValue: Double,
+    val balanceAccount: Double? = null
 )
