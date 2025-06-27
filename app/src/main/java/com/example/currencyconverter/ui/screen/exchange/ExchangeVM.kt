@@ -17,8 +17,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
-import java.math.RoundingMode
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -28,6 +26,9 @@ class ExchangeVM @Inject constructor(
     private val accountRepository: AccountRepository,
     private val transactionRepository: TransactionRepository
 ) : ViewModel() {
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
 
     private val _accounts = MutableStateFlow<List<AccountDbo>>(emptyList())
     val accounts: StateFlow<List<AccountDbo>> = _accounts
@@ -46,6 +47,7 @@ class ExchangeVM @Inject constructor(
         getAccounts()
         loadRates()
     }
+
     private fun loadRates() {
         viewModelScope.launch {
             while (isActive) {
@@ -61,7 +63,8 @@ class ExchangeVM @Inject constructor(
                         val fromCurrency = exchangeParams.value.fromCurrency
                         val toCurrency = exchangeParams.value.toCurrency
 
-                        val filteredResult = result.filter { it.currency == fromCurrency || it.currency == toCurrency }
+                        val filteredResult =
+                            result.filter { it.currency == fromCurrency || it.currency == toCurrency }
 
                         val accounts = accountRepository.getAllAccounts()
                         val mappedRates = mapToExchangeRates(filteredResult, accounts)
@@ -83,6 +86,7 @@ class ExchangeVM @Inject constructor(
         val toCurrency: String = "",
         val amount: String = ""
     )
+
     private fun getAccounts() {
         viewModelScope.launch {
             val accounts = accountRepository.getAllAccounts()
@@ -91,24 +95,57 @@ class ExchangeVM @Inject constructor(
     }
 
     fun saveTransaction(
-        fromCurrency: String,
         toCurrency: String,
-        fromAmount: Double,
-        toAmount: Double
+        fromCurrency: String,
+        toSum: Double,
+        fromSum: Double
     ) {
-        val roundedFromAmount = BigDecimal(fromAmount).setScale(2, RoundingMode.HALF_UP).toDouble()
-        val roundedToAmount = BigDecimal(toAmount).setScale(2, RoundingMode.HALF_UP).toDouble()
-        val transaction = TransactionDbo(
-            id = 0, // autoGenerate = true
-            from = fromCurrency,
-            to = toCurrency,
-            fromAmount = roundedFromAmount,
-            toAmount = roundedToAmount,
-            dateTime = LocalDateTime.now()
-        )
-
         viewModelScope.launch(Dispatchers.IO) {
-            transactionRepository.insert(transaction)
+
+            // 1. Получаем баланс по fromCurrency
+            val debitBalance = accountRepository.getAccountByCurrency(fromCurrency)
+
+            if (debitBalance == null || debitBalance.amount < fromSum) {
+                _error.value = "Insufficient funds in the account $fromCurrency"
+                launch(Dispatchers.Main) {
+                    delay(5000)
+                    _error.value = null
+                }
+                return@launch
+            }
+            val accountTo = accountRepository.getAccountByCurrency(toCurrency)
+            if (accountTo == null) {
+                accountRepository.insertAccountExists(toCurrency)
+            }
+            val acceptanceBalance = accountRepository.getAccountByCurrency(toCurrency)
+
+            val transaction = TransactionDbo(
+                id = 0,
+                from = fromCurrency,
+                to = toCurrency,
+                fromAmount = fromSum,
+                toAmount = toSum,
+                dateTime = LocalDateTime.now()
+            )
+
+            viewModelScope.launch(Dispatchers.IO) {
+                transactionRepository.insert(transaction)
+            }
+            if (acceptanceBalance != null) {
+
+
+                accountRepository.updateAccountBalance(
+                    currencyCode = toCurrency,
+                    newBalance = acceptanceBalance.amount + toSum
+                )
+            }
+
+
+
+            accountRepository.updateAccountBalance(
+                currencyCode = fromCurrency,
+                newBalance = debitBalance.amount - fromSum
+            )
         }
     }
 }

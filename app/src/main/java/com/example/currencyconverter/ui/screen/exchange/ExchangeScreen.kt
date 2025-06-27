@@ -23,19 +23,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.currencyconverter.domain.entity.Currency
+import com.example.currencyconverter.ui.navigation.LocalNavController
 import com.example.currencyconverter.ui.screen.exchange.component.ExchangeItem
 import com.example.currencyconverter.ui.screen.exchange.component.calculateExchangeRate
+import com.example.currencyconverter.ui.utils.roundToTwoDecimalPlaces
 import com.example.currencyconverter.ui.utils.rounderNumber
-import kotlin.math.roundToInt
 
 
 @Composable
-fun ExchangeScreen(fromCurrency: String, toCurrency: String, amount: String, value : String,
-    viewModel: ExchangeVM = hiltViewModel()
+fun ExchangeScreen(toCurrency: String, fromCurrency: String, amount: String, value : String,
+                   viewModel: ExchangeVM = hiltViewModel(),
+
     ) {
+    val navController = LocalNavController.current
+    val error by viewModel.error.collectAsState()
     val rates by viewModel.rates.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val course = if ((!isLoading) &&rates.size >= 2) {
@@ -45,24 +51,26 @@ fun ExchangeScreen(fromCurrency: String, toCurrency: String, amount: String, val
     }  else {
         value.toDouble() / amount.toDouble()
     }
+    val valueToBD = (course * amount.toDouble()).roundToTwoDecimalPlaces()
     val accountList by viewModel.accounts.collectAsState()
     val balanceMap = remember(accountList) {
         accountList.associateBy({ it.code }, { it.amount })
     }
 
-    val exchangeRate = remember(fromCurrency, toCurrency, amount, value, balanceMap) {
+    val exchangeRate = remember(toCurrency, fromCurrency, amount, value, balanceMap) {
         calculateExchangeRate(
-            fromCurrencyCode = fromCurrency,
-            toCurrencyCode = toCurrency,
+            fromCurrencyCode = toCurrency,
+            toCurrencyCode = fromCurrency,
             amount = amount,
             value = value,
             accountBalances = balanceMap
         )
     }
 
+
     LaunchedEffect(Unit) {
         viewModel.exchangeParams = mutableStateOf(
-            ExchangeVM.ExchangeParams(fromCurrency, toCurrency, amount)
+            ExchangeVM.ExchangeParams(toCurrency, fromCurrency, amount)
         )
     }
 
@@ -73,18 +81,18 @@ fun ExchangeScreen(fromCurrency: String, toCurrency: String, amount: String, val
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "${Currency.entries.find { it.code == toCurrency }?.fullName} " +
-                    "to ${Currency.entries.find { it.code == fromCurrency }?.fullName}"
+            text = "${Currency.entries.find { it.code == fromCurrency }?.fullName} " +
+                    "to ${Currency.entries.find { it.code == toCurrency }?.fullName}"
         )
-        Text(text = "${Currency.entries.find { it.code == fromCurrency }?.symbol}1 = ${Currency.entries.find { it.code == toCurrency }?.symbol}${course.rounderNumber()} ")
+        Text(text = "${Currency.entries.find { it.code == toCurrency }?.symbol}1 = ${Currency.entries.find { it.code == fromCurrency }?.symbol}${course.rounderNumber()} ")
         Spacer(modifier = Modifier.height(24.dp))
 
         if (!isLoading) {
             rates.forEach { rate ->
                 ExchangeItem(
                     rate = rate,
-                    baseCurrency = fromCurrency,
-                    amount = if (rate.secondaryCurrency.code == fromCurrency) amount else value
+                    baseCurrency = toCurrency,
+                    amount = if (rate.secondaryCurrency.code == toCurrency) amount else value
                 )
             }
 
@@ -92,20 +100,32 @@ fun ExchangeScreen(fromCurrency: String, toCurrency: String, amount: String, val
             exchangeRate.forEach { rate ->
                 ExchangeItem(
                     rate = rate,
-                    baseCurrency = fromCurrency,
-                    amount = if (rate.secondaryCurrency.code == fromCurrency) amount else value
+                    baseCurrency = toCurrency,
+                    amount = if (rate.secondaryCurrency.code == toCurrency) amount else value
                 )
             }
         }
         Spacer(modifier = Modifier.height(24.dp))
+        if (error != null) {
+            Text(
+                text = error!!,
+                color = Color.Red,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+        }
+
         Button(
             onClick = {
                 viewModel.saveTransaction(
-                    fromCurrency = fromCurrency,
                     toCurrency = toCurrency,
-                    fromAmount = amount.toDouble(),
-                    toAmount = value.toDouble()
+                    fromCurrency = fromCurrency,
+                    toSum = amount.toDouble(),
+                    fromSum = valueToBD
                 )
+                navController.popBackStack()
             },
             enabled = !isLoading,
             colors = ButtonDefaults.buttonColors(
@@ -128,8 +148,8 @@ fun ExchangeScreen(fromCurrency: String, toCurrency: String, amount: String, val
                     Text(text = "Loading course...")
                 }
             } else {
-                Text(text = "Bay ${Currency.entries.find { it.code == fromCurrency }?.fullName}  " +
-                        "for ${Currency.entries.find { it.code == toCurrency }?.fullName}")
+                Text(text = "Bay ${Currency.entries.find { it.code == toCurrency }?.fullName}  " +
+                        "for ${Currency.entries.find { it.code == fromCurrency }?.fullName}")
             }
         }
     }

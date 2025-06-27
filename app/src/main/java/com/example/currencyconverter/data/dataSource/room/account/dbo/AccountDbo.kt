@@ -9,5 +9,5 @@ data class AccountDbo(
     @PrimaryKey
     @ColumnInfo(name = "currency_code")
     val code: String,
-    val amount: Double
+    val amount: Double = 0.0
 )

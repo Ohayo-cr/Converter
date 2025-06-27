@@ -72,8 +72,8 @@ fun ExchangeItem(
                 )
 
                     Text(
-                        text = "Balance: ${rate.secondaryCurrency.symbol} ${rate.balanceAccount ?: 0.0}",
-                        fontWeight = FontWeight.Normal,
+                        text = "Balance: ${rate.secondaryCurrency.symbol} ${(rate.balanceAccount ?: 0.0).rounderNumber(2)}",
+                        fontWeight = FontWeight.Light,
                         color = Color.DarkGray.copy(alpha = .6f)
                     )
                 }

@@ -14,6 +14,8 @@ interface AccountDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllAccount(accounts: List<AccountDbo>)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertSingleAccount(account: AccountDbo)
 
     @Query("SELECT * FROM accounts")
     suspend fun getAllAccounts(): List<AccountDbo>
@@ -26,4 +28,11 @@ interface AccountDao {
 
     @Query("SELECT COUNT(*) == 0 FROM accounts")
     suspend fun isEmpty(): Boolean
+
+    @Query("UPDATE accounts SET amount = :newBalance WHERE currency_code = :currencyCode")
+    suspend fun updateAccountBalance(
+        currencyCode: String,
+        newBalance: Double
+    )
+
 }

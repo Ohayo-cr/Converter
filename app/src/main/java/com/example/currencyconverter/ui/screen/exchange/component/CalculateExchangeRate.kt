@@ -2,6 +2,7 @@ package com.example.currencyconverter.ui.screen.exchange.component
 
 import com.example.currencyconverter.domain.entity.Currency
 import com.example.currencyconverter.domain.entity.ExchangeRate
+import java.math.BigDecimal
 
 fun calculateExchangeRate(
     fromCurrencyCode: String,

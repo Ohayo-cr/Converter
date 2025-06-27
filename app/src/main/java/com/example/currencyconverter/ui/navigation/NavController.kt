@@ -9,7 +9,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.currencyconverter.ui.screen.TransactionsScreen
 import com.example.currencyconverter.ui.screen.currency.CurrencyScreen
 import com.example.currencyconverter.ui.screen.exchange.ExchangeScreen
 
@@ -44,7 +46,14 @@ fun NavHostScreen(navController: NavHostController) {
                 val amount = backStackEntry.arguments?.getString("amount") ?: ""
                 val value = backStackEntry.arguments?.getString("value") ?: ""
 
-                ExchangeScreen(fromCurrency = base, toCurrency = target, amount = amount, value = value)
+                ExchangeScreen(
+                    toCurrency = base,
+                    fromCurrency = target,
+                    amount = amount,
+                    value = value,)
+            }
+            composable(Screen.Transactions.route) {
+                TransactionsScreen()
             }
         }
     }
