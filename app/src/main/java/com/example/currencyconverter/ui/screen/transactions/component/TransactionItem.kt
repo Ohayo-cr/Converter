@@ -59,14 +59,24 @@ fun TransactionItem(transaction: TransactionUiModel) {
                 )
 
                 Text(
-                    text = "${transaction.to.code}${transaction.to.symbol}${transaction.toAmount}",
+                    text = "${transaction.to.code} ${transaction.to.symbol}${transaction.toAmount}",
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
             }
 
 
         }
-        Text(text = transaction.formattedDate)
+
+        Row(
+                modifier = Modifier
+                    .padding(vertical = 2.dp)
+                    .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Absolute.SpaceBetween
+        ) {
+            Text(text = transaction.formattedDate)
+            Text(text = "Purchased: ${transaction.to.fullName}")
+        }
     }
     HorizontalDivider(Modifier.height(1.dp), color = Color.LightGray)
 }
