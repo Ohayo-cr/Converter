@@ -12,7 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.currencyconverter.ui.navigation.component.LocalNavController
 import com.example.currencyconverter.ui.navigation.component.Screen
-import com.example.currencyconverter.ui.screen.TransactionsScreen
+import com.example.currencyconverter.ui.screen.transactions.TransactionsScreen
 import com.example.currencyconverter.ui.screen.currency.CurrencyScreen
 import com.example.currencyconverter.ui.screen.exchange.ExchangeScreen
 

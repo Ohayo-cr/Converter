@@ -33,8 +33,9 @@ import com.example.currencyconverter.ui.navigation.botomNavPanel.component.Botto
 import com.example.currencyconverter.ui.navigation.botomNavPanel.component.NoRippleInteractionSource
 
 @Composable
-fun BottomPanel(navController: NavController,
-                     viewModel: BottomNavViewModel = hiltViewModel()
+fun BottomPanel(
+    navController: NavController,
+    viewModel: BottomNavViewModel = hiltViewModel()
 ) {
     val items = listOf(
         BottomItem.Screen1,
@@ -71,54 +72,51 @@ fun BottomPanel(navController: NavController,
         ) {
 
 
-
-                items.take(2).forEach { item ->
-                    NavigationBarItem(
-                        icon = {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                                Icon(
-                                    painterResource(id = item.iconId),
-                                    contentDescription = "icon",
-                                    modifier = Modifier
-                                        .size(35.dp)
-                                        .padding(bottom = 4.dp)
-                                )
-                                Text(
-                                    text = item.title,
-                                    fontSize = 10.sp,
-                                    modifier = Modifier.padding(top = 2.dp)
-                                )
+            items.take(2).forEach { item ->
+                NavigationBarItem(
+                    icon = {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            Icon(
+                                painterResource(id = item.iconId),
+                                contentDescription = "icon",
+                                modifier = Modifier
+                                    .size(35.dp)
+                                    .padding(bottom = 4.dp)
+                            )
+                            Text(
+                                text = item.title,
+                                fontSize = 10.sp,
+                                modifier = Modifier.padding(top = 2.dp)
+                            )
+                        }
+                    },
+                    selected = selectedItem == item.route,
+                    onClick = {
+                        val newRoute = item.route
+                        viewModel.updateNavigation(newRoute)
+                        navController.navigate(newRoute) {
+                            launchSingleTop = true
+                            restoreState = true
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                                inclusive = false
                             }
-                        },
-                        selected = selectedItem == item.route,
-                        onClick = {
-                            val newRoute = item.route
-                            viewModel.updateNavigation(newRoute)
-                            navController.navigate(newRoute) {
-                                launchSingleTop = true
-                                restoreState = true
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                    inclusive = false
-                                }
-                            }
-                        },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = colorScheme.inversePrimary,
-                            unselectedIconColor = colorScheme.onSurface,
-                            selectedTextColor = colorScheme.inversePrimary,
-                            unselectedTextColor = colorScheme.onSurface,
-                            indicatorColor = colorScheme.surface
-                        ),
-                        interactionSource = remember { NoRippleInteractionSource }
-                    )
-                }
-
-
+                        }
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = colorScheme.inversePrimary,
+                        unselectedIconColor = colorScheme.onSurface,
+                        selectedTextColor = colorScheme.inversePrimary,
+                        unselectedTextColor = colorScheme.onSurface,
+                        indicatorColor = colorScheme.surface
+                    ),
+                    interactionSource = remember { NoRippleInteractionSource }
+                )
             }
         }
-
     }
+
+}
