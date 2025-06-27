@@ -5,5 +5,4 @@ import javax.inject.Inject
 
 class CurrencyRepository  @Inject constructor()
 {
-
 }

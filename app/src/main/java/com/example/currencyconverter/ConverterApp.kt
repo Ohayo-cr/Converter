@@ -16,7 +16,6 @@ class ConverterApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // Инициализация базовых категорий
         MainScope().launch {
             if (accountRepository.accountIsEmpty()) {
                 accountRepository.insertAllAccount(DefaultAccount.DEFAULT_ACCOUNT)

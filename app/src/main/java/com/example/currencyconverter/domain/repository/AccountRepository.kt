@@ -3,7 +3,6 @@ package com.example.currencyconverter.domain.repository
 
 import com.example.currencyconverter.data.dataSource.room.account.dao.AccountDao
 import com.example.currencyconverter.data.dataSource.room.account.dbo.AccountDbo
-import java.math.BigDecimal
 import javax.inject.Inject
 
 class AccountRepository @Inject constructor(

@@ -14,7 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.currencyconverter.ui.navigation.LocalNavController
+import com.example.currencyconverter.ui.navigation.component.LocalNavController
 import com.example.currencyconverter.ui.screen.currency.component.RateItem
 
 

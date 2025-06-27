@@ -1,4 +1,4 @@
-package com.example.currencyconverter.ui.navigation
+package com.example.currencyconverter.ui.navigation.component
 
 sealed class Screen(val route: String) {
     object Currency : Screen("currency_screen")
